@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type TaskRepository interface {
 	Create(task *Task) (*Task, error)
@@ -11,10 +15,12 @@ type TaskRepository interface {
 }
 
 type Task struct {
-	ID     uuid.UUID
-	Name   string
-	Status uint16
-	UserID uuid.UUID
+	ID        uuid.UUID
+	Name      string
+	Status    uint16
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (task *Task) Validate() error {

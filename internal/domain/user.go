@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type UserRepository interface {
 	Create(user *User) (*User, error)
@@ -10,10 +14,12 @@ type UserRepository interface {
 }
 
 type User struct {
-	ID       uuid.UUID
-	Name     string
-	Email    string
-	Password string
+	ID        uuid.UUID
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (user *User) Validate() error {
