@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/raita876/gotask/internal/domain"
+	"gorm.io/gorm"
 )
 
 type DBTask struct {
@@ -40,4 +41,81 @@ func fromDBTask(dbTask *DBTask) *domain.Task {
 		CreatedAt: dbTask.CreatedAt,
 		UpdatedAt: dbTask.UpdatedAt,
 	}
+}
+
+type DBTaskRepository struct {
+	db *gorm.DB
+}
+
+func NewDBTaskRepository(db *gorm.DB) domain.TaskRepository {
+	return &DBTaskRepository{
+		db: db,
+	}
+}
+
+func (repo *DBTaskRepository) Create(task *domain.Task) (*domain.Task, error) {
+	if err := task.Validate(); err != nil {
+		return nil, err
+	}
+
+	dbTask := toDBTask(task)
+
+	if err := repo.db.Create(dbTask).Error; err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (repo *DBTaskRepository) FindByID(id uuid.UUID) (*domain.Task, error) {
+	var dbTask DBTask
+	if err := repo.db.First(&dbTask, id).Error; err != nil {
+		return nil, err
+	}
+
+	return fromDBTask(&dbTask), nil
+}
+
+func (repo *DBTaskRepository) FindByUserID(userID uuid.UUID) ([]*domain.Task, error) {
+	var dbTasks []DBTask
+
+	if err := repo.db.Find(&dbTasks, userID).Error; err != nil {
+		return nil, err
+	}
+
+	tasks := make([]*domain.Task, len(dbTasks))
+	for i, dbTask := range dbTasks {
+		tasks[i] = fromDBTask(&dbTask)
+	}
+
+	return tasks, nil
+}
+
+func (repo *DBTaskRepository) Update(id uuid.UUID, name string, status uint16) (*domain.Task, error) {
+	var dbTask DBTask
+	if err := repo.db.First(&dbTask, id).Error; err != nil {
+		return nil, err
+	}
+
+	dbTask.Name = name
+	dbTask.Status = status
+
+	if err := fromDBTask(&dbTask).Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := repo.db.Model(&DBTask{}).Where("id = ?", dbTask.ID).Updates(&dbTask).Error; err != nil {
+		return nil, err
+	}
+
+	return fromDBTask(&dbTask), nil
+}
+
+func (repo *DBTaskRepository) Delete(id uuid.UUID) error {
+	_, err := repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	return repo.db.Delete(&DBTask{}, id).Error
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/raita876/gotask/internal/domain"
+	"gorm.io/gorm"
 )
 
 type DBUser struct {
@@ -40,4 +41,66 @@ func fromDBUser(dbUser *DBUser) *domain.User {
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 	}
+}
+
+type DBUserRepository struct {
+	db *gorm.DB
+}
+
+func NewDBUserRepository(db *gorm.DB) domain.UserRepository {
+	return &DBUserRepository{
+		db: db,
+	}
+}
+
+func (repo *DBUserRepository) Create(user *domain.User) (*domain.User, error) {
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	dbUser := toDBUser(user)
+
+	if err := repo.db.Create(dbUser).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (repo *DBUserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
+	var dbUser DBUser
+	if err := repo.db.First(&dbUser, id).Error; err != nil {
+		return nil, err
+	}
+
+	return fromDBUser(&dbUser), nil
+}
+
+func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) (*domain.User, error) {
+	var dbUser DBUser
+	if err := repo.db.First(&dbUser, id).Error; err != nil {
+		return nil, err
+	}
+
+	dbUser.Name = name
+	dbUser.Password = password
+
+	if err := fromDBUser(&dbUser).Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := repo.db.Model(&DBUser{}).Where("id = ?", dbUser.ID).Updates(&dbUser).Error; err != nil {
+		return nil, err
+	}
+
+	return fromDBUser(&dbUser), nil
+}
+
+func (repo *DBUserRepository) Delete(id uuid.UUID) error {
+	_, err := repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	return repo.db.Delete(&DBUser{}, id).Error
 }
