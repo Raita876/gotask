@@ -7,7 +7,7 @@ import (
 type UserUseCase interface {
 	CreateUser(*CreateUserInput) (*CreateUserOutput, error)
 	FindUserByID(*FindUserByIDInput) (*FindUserByIDOutput, error)
-	UpdatePassword(*UpdatePasswordInput) (*UpdatePasswordOutput, error)
+	UpdateUser(*UpdatePasswordInput) (*UpdatePasswordOutput, error)
 	DeleteUser(*DeleteUserInput) (*DeleteUserOutput, error)
 }
 
@@ -59,7 +59,7 @@ func (uc *userInteractor) FindUserByID(input *FindUserByIDInput) (*FindUserByIDO
 	return nil, nil
 }
 
-func (uc *userInteractor) UpdatePassword(input *UpdatePasswordInput) (*UpdatePasswordOutput, error) {
+func (uc *userInteractor) UpdateUser(input *UpdatePasswordInput) (*UpdatePasswordOutput, error) {
 	// TODO
 	return nil, nil
 }
