@@ -54,10 +54,6 @@ func NewDBUserRepository(db *gorm.DB) domain.UserRepository {
 }
 
 func (repo *DBUserRepository) Create(user *domain.User) (*domain.User, error) {
-	if err := user.Validate(); err != nil {
-		return nil, err
-	}
-
 	dbUser := toDBUser(user)
 
 	if err := repo.db.Create(dbUser).Error; err != nil {
@@ -78,16 +74,14 @@ func (repo *DBUserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 
 func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) (*domain.User, error) {
 	var dbUser DBUser
+
+	// TODO: １つの関数につき発行する SQL は１つとしたい
 	if err := repo.db.First(&dbUser, id).Error; err != nil {
 		return nil, err
 	}
 
 	dbUser.Name = name
 	dbUser.Password = password
-
-	if err := fromDBUser(&dbUser).Validate(); err != nil {
-		return nil, err
-	}
 
 	if err := repo.db.Model(&DBUser{}).Where("id = ?", dbUser.ID).Updates(&dbUser).Error; err != nil {
 		return nil, err
@@ -97,10 +91,5 @@ func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) (*doma
 }
 
 func (repo *DBUserRepository) Delete(id uuid.UUID) error {
-	_, err := repo.FindByID(id)
-	if err != nil {
-		return err
-	}
-
 	return repo.db.Delete(&DBUser{}, id).Error
 }

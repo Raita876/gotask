@@ -54,10 +54,6 @@ func NewDBTaskRepository(db *gorm.DB) domain.TaskRepository {
 }
 
 func (repo *DBTaskRepository) Create(task *domain.Task) (*domain.Task, error) {
-	if err := task.Validate(); err != nil {
-		return nil, err
-	}
-
 	dbTask := toDBTask(task)
 
 	if err := repo.db.Create(dbTask).Error; err != nil {
@@ -93,16 +89,14 @@ func (repo *DBTaskRepository) FindByUserID(userID uuid.UUID) ([]*domain.Task, er
 
 func (repo *DBTaskRepository) Update(id uuid.UUID, name string, status uint16) (*domain.Task, error) {
 	var dbTask DBTask
+
+	// TODO: １つの関数につき発行する SQL は１つとしたい
 	if err := repo.db.First(&dbTask, id).Error; err != nil {
 		return nil, err
 	}
 
 	dbTask.Name = name
 	dbTask.Status = status
-
-	if err := fromDBTask(&dbTask).Validate(); err != nil {
-		return nil, err
-	}
 
 	if err := repo.db.Model(&DBTask{}).Where("id = ?", dbTask.ID).Updates(&dbTask).Error; err != nil {
 		return nil, err
@@ -112,10 +106,5 @@ func (repo *DBTaskRepository) Update(id uuid.UUID, name string, status uint16) (
 }
 
 func (repo *DBTaskRepository) Delete(id uuid.UUID) error {
-	_, err := repo.FindByID(id)
-	if err != nil {
-		return err
-	}
-
 	return repo.db.Delete(&DBTask{}, id).Error
 }
