@@ -10,7 +10,7 @@ type TaskRepository interface {
 	Create(task *Task) (*Task, error)
 	FindByID(id uuid.UUID) (*Task, error)
 	FindByUserID(userID uuid.UUID) ([]*Task, error)
-	Update(id uuid.UUID, name string, status uint16) (*Task, error)
+	Update(id uuid.UUID, name string, status uint16) error
 	Delete(id uuid.UUID) error
 }
 

@@ -72,22 +72,11 @@ func (repo *DBUserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 	return fromDBUser(&dbUser), nil
 }
 
-func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) (*domain.User, error) {
-	var dbUser DBUser
-
-	// TODO: １つの関数につき発行する SQL は１つとしたい
-	if err := repo.db.First(&dbUser, id).Error; err != nil {
-		return nil, err
-	}
-
-	dbUser.Name = name
-	dbUser.Password = password
-
-	if err := repo.db.Model(&DBUser{}).Where("id = ?", dbUser.ID).Updates(&dbUser).Error; err != nil {
-		return nil, err
-	}
-
-	return fromDBUser(&dbUser), nil
+func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) error {
+	return repo.db.Model(&DBUser{}).
+		Where("id = ?", id).
+		Select("Name", "Password").
+		Updates(DBUser{Name: name, Password: password}).Error
 }
 
 func (repo *DBUserRepository) Delete(id uuid.UUID) error {

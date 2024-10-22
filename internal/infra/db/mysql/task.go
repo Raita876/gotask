@@ -87,22 +87,11 @@ func (repo *DBTaskRepository) FindByUserID(userID uuid.UUID) ([]*domain.Task, er
 	return tasks, nil
 }
 
-func (repo *DBTaskRepository) Update(id uuid.UUID, name string, status uint16) (*domain.Task, error) {
-	var dbTask DBTask
-
-	// TODO: １つの関数につき発行する SQL は１つとしたい
-	if err := repo.db.First(&dbTask, id).Error; err != nil {
-		return nil, err
-	}
-
-	dbTask.Name = name
-	dbTask.Status = status
-
-	if err := repo.db.Model(&DBTask{}).Where("id = ?", dbTask.ID).Updates(&dbTask).Error; err != nil {
-		return nil, err
-	}
-
-	return fromDBTask(&dbTask), nil
+func (repo *DBTaskRepository) Update(id uuid.UUID, name string, status uint16) error {
+	return repo.db.Model(&DBTask{}).
+		Where("id = ?", id).
+		Select("Name", "Status").
+		Updates(&DBTask{Name: name, Status: status}).Error
 }
 
 func (repo *DBTaskRepository) Delete(id uuid.UUID) error {

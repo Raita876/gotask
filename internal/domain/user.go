@@ -9,7 +9,7 @@ import (
 type UserRepository interface {
 	Create(user *User) (*User, error)
 	FindByID(id uuid.UUID) (*User, error)
-	Update(id uuid.UUID, name, password string) (*User, error)
+	Update(id uuid.UUID, name, password string) error
 	Delete(id uuid.UUID) error
 }
 
