@@ -20,7 +20,7 @@ func NewTaskController(e *echo.Echo, uc usecase.TaskUseCase) *TaskController {
 
 	e.POST("/api/v1/tasks", ctr.CreateTask)
 	e.GET("/api/v1/tasks/:id", ctr.FindTaskByID)
-	e.GET("/api/v1/tasks", ctr.FindTasksByUserID)
+	e.GET("/api/v1/tasks/:user_id", ctr.FindTasksByUserID)
 	e.PUT("/api/v1/tasks/:id", ctr.UpdateTask)
 	e.DELETE("/api/v1/tasks/:id", ctr.DeleteTask)
 

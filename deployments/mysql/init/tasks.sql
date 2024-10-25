@@ -1,8 +1,8 @@
-CREATE DATABASE todoapp_db;
+CREATE DATABASE task_db;
 
-GRANT ALL ON todoapp_db.* TO mysql;
+GRANT ALL ON task_db.* TO mysql;
 
-USE todoapp_db;
+USE task_db;
 
 DROP TABLE IF EXISTS users;
 

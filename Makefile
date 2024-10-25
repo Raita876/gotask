@@ -1,7 +1,17 @@
+export VERSION ?= $(shell cat ./VERSION)
+
+
+.PHONY: dockerbuild
+dockerbuild:
+	docker build \
+		-t gotask:$(VERSION) \
+		--build-arg VERSION=$(VERSION) \
+		.
+
 .PHONY: up
 up:
+	docker compose build --no-cache
 	docker compose up -d
-	sleep 10
 
 .PHONY: down
 down:
