@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/raita876/gotask/internal/adapter/rest"
 	"github.com/raita876/gotask/internal/infra/db/mysql"
@@ -48,13 +48,16 @@ func main() {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			// TODO
-			time.Sleep(time.Second * 20)
-
 			dsn := ctx.String("dsn")
 			addr := ctx.String("addr")
 
-			gormDB, err := gorm.Open(mysqldriver.Open(dsn), &gorm.Config{})
+			gormDB, err := retry.DoWithData(
+				func() (*gorm.DB, error) {
+					gormDB, err := gorm.Open(mysqldriver.Open(dsn), &gorm.Config{})
+					log.Println(err)
+					return gormDB, err
+				},
+			)
 			if err != nil {
 				log.Fatalf("Failed to connect to database: %v", err)
 			}
