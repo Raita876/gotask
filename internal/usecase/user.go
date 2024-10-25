@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/raita876/gotask/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUseCase interface {
@@ -40,9 +41,8 @@ type FindUserByIDOutput struct {
 }
 
 type UpdatePasswordInput struct {
-	ID       uuid.UUID
-	Name     string
-	Password string
+	ID   uuid.UUID
+	Name string
 }
 type UpdatePasswordOutput struct {
 	UserOutput *UserOutput
@@ -65,12 +65,26 @@ func NewUserInteractor(repo domain.UserRepository) UserUseCase {
 	}
 }
 
+func toBcrypt(password string) (string, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashed), nil
+}
+
 func (i *userInteractor) CreateUser(input *CreateUserInput) (*CreateUserOutput, error) {
+	hashed, err := toBcrypt(input.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	user := &domain.User{
 		ID:        uuid.New(),
 		Name:      input.Name,
 		Email:     input.Email,
-		Password:  input.Password,
+		Password:  hashed,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -120,13 +134,12 @@ func (i *userInteractor) UpdateUser(input *UpdatePasswordInput) (*UpdatePassword
 	}
 
 	user.Name = input.Name
-	user.Password = input.Password
 
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
 
-	if err := i.repo.Update(input.ID, input.Name, input.Password); err != nil {
+	if err := i.repo.Update(input.ID, input.Name); err != nil {
 		return nil, err
 	}
 

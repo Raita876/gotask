@@ -72,11 +72,11 @@ func (repo *DBUserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 	return fromDBUser(&dbUser), nil
 }
 
-func (repo *DBUserRepository) Update(id uuid.UUID, name, password string) error {
+func (repo *DBUserRepository) Update(id uuid.UUID, name string) error {
 	return repo.db.Model(&DBUser{}).
 		Where("id = ?", id).
-		Select("Name", "Password").
-		Updates(DBUser{Name: name, Password: password}).Error
+		Select("Name").
+		Updates(DBUser{Name: name}).Error
 }
 
 func (repo *DBUserRepository) Delete(id uuid.UUID) error {
