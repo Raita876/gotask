@@ -8,6 +8,10 @@ dockerbuild:
 		--build-arg VERSION=$(VERSION) \
 		.
 
+.PHONY: swag
+swag:
+	swag init -g cmd/gotask/main.go
+
 .PHONY: up
 up:
 	docker compose build --no-cache
