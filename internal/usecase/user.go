@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/raita876/gotask/internal/domain"
 )
 
@@ -11,32 +14,45 @@ type UserUseCase interface {
 	DeleteUser(*DeleteUserInput) (*DeleteUserOutput, error)
 }
 
+type UserOutput struct {
+	ID        uuid.UUID
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type CreateUserInput struct {
-	// TODO
+	Name     string
+	Email    string
+	Password string
 }
 type CreateUserOutput struct {
-	// TODO
+	UserOutput *UserOutput
 }
 
 type FindUserByIDInput struct {
-	// TODO
+	ID uuid.UUID
 }
 type FindUserByIDOutput struct {
-	// TODO
+	UserOutput *UserOutput
 }
 
 type UpdatePasswordInput struct {
-	// TODO
+	ID       uuid.UUID
+	Name     string
+	Password string
 }
 type UpdatePasswordOutput struct {
-	// TODO
+	UserOutput *UserOutput
 }
 
 type DeleteUserInput struct {
-	// TODO
+	ID uuid.UUID
 }
 type DeleteUserOutput struct {
-	// TODO
+	// no param
 }
 
 type userInteractor struct {
@@ -49,114 +65,92 @@ func NewUserInteractor(repo domain.UserRepository) UserUseCase {
 	}
 }
 
-func (uc *userInteractor) CreateUser(input *CreateUserInput) (*CreateUserOutput, error) {
-	// TODO
-	return nil, nil
+func (i *userInteractor) CreateUser(input *CreateUserInput) (*CreateUserOutput, error) {
+	user := &domain.User{
+		ID:        uuid.New(),
+		Name:      input.Name,
+		Email:     input.Email,
+		Password:  input.Password,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	if _, err := i.repo.Create(user); err != nil {
+		return nil, err
+	}
+
+	return &CreateUserOutput{
+		UserOutput: &UserOutput{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			Password:  user.Password,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
+	}, nil
 }
 
-func (uc *userInteractor) FindUserByID(input *FindUserByIDInput) (*FindUserByIDOutput, error) {
-	// TODO
-	return nil, nil
+func (i *userInteractor) FindUserByID(input *FindUserByIDInput) (*FindUserByIDOutput, error) {
+	user, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FindUserByIDOutput{
+		UserOutput: &UserOutput{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			Password:  user.Password,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
+	}, nil
 }
 
-func (uc *userInteractor) UpdateUser(input *UpdatePasswordInput) (*UpdatePasswordOutput, error) {
-	// TODO
-	return nil, nil
+func (i *userInteractor) UpdateUser(input *UpdatePasswordInput) (*UpdatePasswordOutput, error) {
+	user, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Name = input.Name
+	user.Password = input.Password
+
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := i.repo.Update(input.ID, input.Name, input.Password); err != nil {
+		return nil, err
+	}
+
+	return &UpdatePasswordOutput{
+		UserOutput: &UserOutput{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			Password:  user.Password,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
+	}, nil
 }
 
-func (uc *userInteractor) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, error) {
-	// TODO
-	return nil, nil
+func (i *userInteractor) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, error) {
+	_, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repo.Delete(input.ID); err != nil {
+		return nil, err
+	}
+
+	return &DeleteUserOutput{}, nil
 }
-
-// type CreateUserUseCase interface {
-// 	Execute(*CreateUserInput) (*CreateUserOutput, error)
-// }
-
-// type CreateUserInput struct{}
-
-// type CreateUserOutput struct{}
-
-// type createUserInteractor struct {
-// 	repo domain.UserRepository
-// }
-
-// func NewCreateUserInteractor(repo domain.UserRepository) CreateUserUseCase {
-// 	return &createUserInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *createUserInteractor) Execute(input *CreateUserInput) (*CreateUserOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type FindUserByIDUseCase interface {
-// 	Execute(*FindUserByIDInput) (*FindUserByIDOutput, error)
-// }
-
-// type FindUserByIDInput struct{}
-
-// type FindUserByIDOutput struct{}
-
-// type findUserByIDInteractor struct {
-// 	repo domain.UserRepository
-// }
-
-// func NewFindUserByIDInteractor(repo domain.UserRepository) FindUserByIDUseCase {
-// 	return &findUserByIDInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *findUserByIDInteractor) Execute(input *FindUserByIDInput) (*FindUserByIDOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type UpdatePasswordUsecase interface {
-// 	Execute(*UpdatePasswordInput) (*UpdatePasswordOutput, error)
-// }
-
-// type UpdatePasswordInput struct{}
-
-// type UpdatePasswordOutput struct{}
-
-// type updatePasswordInteractor struct {
-// 	repo domain.UserRepository
-// }
-
-// func NewUpdatePasswordInteractor(repo domain.UserRepository) UpdatePasswordUsecase {
-// 	return &updatePasswordInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *updatePasswordInteractor) Execute(input *UpdatePasswordInput) (*UpdatePasswordOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type DeleteUserUseCase interface {
-// 	Execute(*DeleteUserInput) (*DeleteUserOutput, error)
-// }
-
-// type DeleteUserInput struct{}
-
-// type DeleteUserOutput struct{}
-
-// type deleteUserInteractor struct {
-// 	repo domain.UserRepository
-// }
-
-// func NewDeleteUserInteractor(repo domain.UserRepository) DeleteUserUseCase {
-// 	return &deleteUserInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *deleteUserInteractor) Execute(input *DeleteUserInput) (*DeleteUserOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }

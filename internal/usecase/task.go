@@ -1,6 +1,11 @@
 package usecase
 
-import "github.com/raita876/gotask/internal/domain"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/raita876/gotask/internal/domain"
+)
 
 type TaskUseCase interface {
 	CreateTask(*CreateTaskInput) (*CreateTaskOutput, error)
@@ -10,39 +15,52 @@ type TaskUseCase interface {
 	DeleteTask(*DeleteTaskInput) (*DeleteTaskOutput, error)
 }
 
+type TaskOutput struct {
+	ID        uuid.UUID
+	Name      string
+	Status    uint16
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type CreateTaskInput struct {
-	// TODO
+	Name   string
+	Status uint16
+	UserID uuid.UUID
 }
 type CreateTaskOutput struct {
-	// TODO
+	TaskOutput *TaskOutput
 }
 
 type FindTaskByIDInput struct {
-	// TODO
+	ID uuid.UUID
 }
 type FindTaskByIDOutput struct {
-	// TODO
+	TaskOutput *TaskOutput
 }
 
 type FindTasksByUserIDInput struct {
-	// TODO
+	UserID uuid.UUID
 }
 type FindTasksByUserIDOutput struct {
-	// TODO
+	TasksOutput []*TaskOutput
 }
 
 type UpdateTaskInput struct {
-	// TODO
+	ID     uuid.UUID
+	Name   string
+	Status uint16
 }
 type UpdateTaskOutput struct {
-	// TODO
+	TaskOutput *TaskOutput
 }
 
 type DeleteTaskInput struct {
-	// TODO
+	ID uuid.UUID
 }
 type DeleteTaskOutput struct {
-	// TODO
+	// no param
 }
 
 type taskInteractor struct {
@@ -56,164 +74,119 @@ func NewTaskInteractor(repo domain.TaskRepository) TaskUseCase {
 }
 
 func (i *taskInteractor) CreateTask(input *CreateTaskInput) (*CreateTaskOutput, error) {
-	// TODO
-	return nil, nil
+	task := &domain.Task{
+		ID:        uuid.New(),
+		Name:      input.Name,
+		Status:    input.Status,
+		UserID:    input.UserID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := task.Validate(); err != nil {
+		return nil, err
+	}
+
+	if _, err := i.repo.Create(task); err != nil {
+		return nil, err
+	}
+
+	return &CreateTaskOutput{
+		TaskOutput: &TaskOutput{
+			ID:        task.ID,
+			Name:      task.Name,
+			Status:    task.Status,
+			UserID:    task.UserID,
+			CreatedAt: task.CreatedAt,
+			UpdatedAt: task.UpdatedAt,
+		},
+	}, nil
 }
 
 func (i *taskInteractor) FindTaskByID(input *FindTaskByIDInput) (*FindTaskByIDOutput, error) {
-	// TODO
-	return nil, nil
+	task, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FindTaskByIDOutput{
+		TaskOutput: &TaskOutput{
+			ID:        task.ID,
+			Name:      task.Name,
+			Status:    task.Status,
+			UserID:    task.UserID,
+			CreatedAt: task.CreatedAt,
+			UpdatedAt: task.UpdatedAt,
+		},
+	}, nil
+}
+
+func toTasksOutput(tasks []*domain.Task) []*TaskOutput {
+	tasksOutput := make([]*TaskOutput, len(tasks))
+
+	for i, task := range tasks {
+		tasksOutput[i] = &TaskOutput{
+			ID:        task.ID,
+			Name:      task.Name,
+			Status:    task.Status,
+			UserID:    task.UserID,
+			CreatedAt: task.CreatedAt,
+			UpdatedAt: task.UpdatedAt,
+		}
+	}
+
+	return tasksOutput
 }
 
 func (i *taskInteractor) FindTasksByUserID(input *FindTasksByUserIDInput) (*FindTasksByUserIDOutput, error) {
-	// TODO
-	return nil, nil
+	tasks, err := i.repo.FindByUserID(input.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FindTasksByUserIDOutput{
+		TasksOutput: toTasksOutput(tasks),
+	}, nil
 }
 
 func (i *taskInteractor) UpdateTask(input *UpdateTaskInput) (*UpdateTaskOutput, error) {
-	// TODO
-	return nil, nil
+	task, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	task.Name = input.Name
+	task.Status = input.Status
+
+	if err := task.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := i.repo.Update(input.ID, input.Name, input.Status); err != nil {
+		return nil, err
+	}
+
+	return &UpdateTaskOutput{
+		TaskOutput: &TaskOutput{
+			ID:        task.ID,
+			Name:      task.Name,
+			Status:    task.Status,
+			UserID:    task.UserID,
+			CreatedAt: task.CreatedAt,
+			UpdatedAt: task.UpdatedAt,
+		},
+	}, nil
 }
 
 func (i *taskInteractor) DeleteTask(input *DeleteTaskInput) (*DeleteTaskOutput, error) {
-	// TODO
-	return nil, nil
+	_, err := i.repo.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repo.Delete(input.ID); err != nil {
+		return nil, err
+	}
+
+	return &DeleteTaskOutput{}, nil
 }
-
-// type CreateTaskUseCase interface {
-// 	Execute(*CreateTaskInput) (*CreateTaskOutput, error)
-// }
-
-// type CreateTaskInput struct{}
-
-// type CreateTaskOutput struct{}
-
-// type createTaskInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewCreateTaskInteractor(repo domain.TaskRepository) CreateTaskUseCase {
-// 	return &createTaskInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i createTaskInteractor) Execute(input *CreateTaskInput) (*CreateTaskOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type FindTaskByIDUseCase interface {
-// 	Execute(*FindTaskByIDInput) (*FindTaskByIDOutput, error)
-// }
-
-// type FindTaskByIDInput struct{}
-
-// type FindTaskByIDOutput struct{}
-
-// type findTaskByIDInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewFindTaskByIDInteractor(repo domain.TaskRepository) FindTaskByIDUseCase {
-// 	return &findTaskByIDInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *findTaskByIDInteractor) Execute(input *FindTaskByIDInput) (*FindTaskByIDOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type FindTasksByUserIDUseCase interface {
-// 	Execute(*FindTasksByUserIDInput) (*FindTasksByUserIDOutput, error)
-// }
-
-// type FindTasksByUserIDInput struct{}
-
-// type FindTasksByUserIDOutput struct{}
-
-// type FindTasksByUserIDInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewFindTasksByUserIDInteractor(repo domain.TaskRepository) FindTasksByUserIDUseCase {
-// 	return &FindTasksByUserIDInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *FindTasksByUserIDInteractor) Execute(input *FindTasksByUserIDInput) (*FindTasksByUserIDOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type UpdateTaskNameUseCase interface {
-// 	Execute(*UpdateTaskNameInput) (*UpdateTaskNameOutput, error)
-// }
-
-// type UpdateTaskNameInput struct{}
-
-// type UpdateTaskNameOutput struct{}
-
-// type updateTaskNameInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewUpdateTaskNameInteractor(repo domain.TaskRepository) UpdateTaskNameUseCase {
-// 	return &updateTaskNameInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *updateTaskNameInteractor) Execute(input *UpdateTaskNameInput) (*UpdateTaskNameOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type UpdateTaskStatusUseCase interface {
-// 	Execute(*UpdateTaskStatusInput) (*UpdateTaskStatusOutput, error)
-// }
-
-// type UpdateTaskStatusInput struct{}
-
-// type UpdateTaskStatusOutput struct{}
-
-// type updateTaskStatusInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewUpdateTaskStatusInteractor(repo domain.TaskRepository) UpdateTaskStatusUseCase {
-// 	return &updateTaskStatusInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *updateTaskStatusInteractor) Execute(input *UpdateTaskStatusInput) (*UpdateTaskStatusOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
-
-// type DeleteTaskUseCase interface {
-// 	Execute(*DeleteTaskInput) (*DeleteTaskOutput, error)
-// }
-
-// type DeleteTaskInput struct{}
-
-// type DeleteTaskOutput struct{}
-
-// type deleteTaskInteractor struct {
-// 	repo domain.TaskRepository
-// }
-
-// func NewDeleteTaskInteractor(repo domain.TaskRepository) DeleteTaskUseCase {
-// 	return &deleteTaskInteractor{
-// 		repo: repo,
-// 	}
-// }
-
-// func (i *deleteTaskInteractor) Execute(input *DeleteTaskInput) (*DeleteTaskOutput, error) {
-// 	// TODO
-// 	return nil, nil
-// }
