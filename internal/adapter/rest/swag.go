@@ -13,6 +13,7 @@ func NewSwagController(e *echo.Echo, name, version, usage string) *SwagControlle
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = usage
 	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 

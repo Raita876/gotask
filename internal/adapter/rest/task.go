@@ -21,12 +21,23 @@ func NewTaskController(e *echo.Echo, uc usecase.TaskUseCase) *TaskController {
 	e.POST("/api/v1/tasks", ctr.CreateTask)
 	e.GET("/api/v1/tasks/:id", ctr.FindTaskByID)
 	e.GET("/api/v1/tasks/:user_id", ctr.FindTasksByUserID)
-	e.PUT("/api/v1/tasks/:id", ctr.UpdateTask)
-	e.DELETE("/api/v1/tasks/:id", ctr.DeleteTask)
+	e.PUT("/api/v1/tasks", ctr.UpdateTask)
+	e.DELETE("/api/v1/tasks", ctr.DeleteTask)
 
 	return ctr
 }
 
+// @Summary Create task
+// @Schemes http
+// @Description Create task
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param request body CreateTaskRequest true "request body"
+// @Success 200 {object} TaskResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks [post]
 func (ctr *TaskController) CreateTask(c echo.Context) error {
 	var createTaskRequest CreateTaskRequest
 
@@ -67,6 +78,17 @@ func (ctr *TaskController) CreateTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// @Summary Get task by id
+// @Schemes http
+// @Description Get task by id
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param id path string true "task id"
+// @Success 200 {object} TaskResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks/{id} [get]
 func (ctr *TaskController) FindTaskByID(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -114,6 +136,17 @@ func toTasks(tasksOutput []*usecase.TaskOutput) []*TaskResponse {
 	return tasks
 }
 
+// @Summary Get tasks by user id
+// @Schemes http
+// @Description get tasks by user id
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param user_id path string true "user id"
+// @Success 200 {object} TasksResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks/{user_id} [get]
 func (ctr *TaskController) FindTasksByUserID(c echo.Context) error {
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
@@ -139,6 +172,17 @@ func (ctr *TaskController) FindTasksByUserID(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// @Summary Update task
+// @Schemes http
+// @Description Update task
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param request body UpdateTaskRequest true "request body"
+// @Success 200 {object} TaskResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks [put]
 func (ctr *TaskController) UpdateTask(c echo.Context) error {
 	var updateTaskRequest UpdateTaskRequest
 
@@ -179,6 +223,17 @@ func (ctr *TaskController) UpdateTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// @Summary Delete task
+// @Schemes http
+// @Description Delete task
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param request body DeleteTaskRequest true "request body"
+// @Success 200
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks [delete]
 func (ctr *TaskController) DeleteTask(c echo.Context) error {
 	var deleteTaskRequest DeleteTaskRequest
 

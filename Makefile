@@ -13,7 +13,7 @@ swag:
 	swag init -g cmd/gotask/main.go
 
 .PHONY: up
-up:
+up: swag
 	docker compose build --no-cache
 	docker compose up -d
 
