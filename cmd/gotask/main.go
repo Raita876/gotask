@@ -21,6 +21,11 @@ var (
 	name    string
 )
 
+const (
+	USAGE      = "This is a REST API for task management"
+	USAGE_TEXT = "gotask [OPTION]..."
+)
+
 func main() {
 	cli.VersionFlag = &cli.BoolFlag{
 		Name:    "version",
@@ -31,8 +36,8 @@ func main() {
 	app := &cli.App{
 		Version:   version,
 		Name:      name,
-		Usage:     "This is a REST API for task management",
-		UsageText: "gotask [OPTION]...",
+		Usage:     USAGE,
+		UsageText: USAGE_TEXT,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "dsn",
@@ -71,6 +76,7 @@ func main() {
 			e := echo.New()
 			rest.NewUserController(e, userUseCase)
 			rest.NewTaskController(e, taskUseCase)
+			rest.NewSwagController(e, name, version, USAGE)
 
 			return e.Start(addr)
 		},
