@@ -35,7 +35,8 @@ CREATE TABLE tasks (
     status SMALLINT UNSIGNED NOT NULL,
     user_id CHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    updated_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 INSERT INTO
