@@ -11,6 +11,7 @@ type UserRepository interface {
 	FindByID(id uuid.UUID) (*User, error)
 	Update(id uuid.UUID, name string) error
 	Delete(id uuid.UUID) error
+	Login(email, password string) (bool, error)
 }
 
 type User struct {

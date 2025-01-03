@@ -22,6 +22,7 @@ func NewUserController(e *echo.Echo, uc usecase.UserUseCase) *UserController {
 	e.GET("/api/v1/users/:id", ctr.FindUserByID)
 	e.PUT("/api/v1/users/:id", ctr.UpdateUser)
 	e.DELETE("/api/v1/users/:id", ctr.DeleteUser)
+	e.POST("/api/v1/users/login", ctr.Login)
 
 	return ctr
 }
@@ -201,6 +202,46 @@ func (ctr *UserController) DeleteUser(c echo.Context) error {
 	})
 }
 
+// @Summary Login user
+// @Schemes http
+// @Description Login user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "request body"
+// @Success 200
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users/login [post]
+func (ctr *UserController) Login(c echo.Context) error {
+	var loginRequest LoginRequest
+
+	if err := c.Bind(&loginRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Failed to parse request body",
+		})
+	}
+
+	input := &usecase.LoginUserInput{
+		Email:    loginRequest.Email,
+		Password: loginRequest.Password,
+	}
+
+	output, err := ctr.uc.LoginUser(input)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to login user",
+		})
+	}
+
+	response := &LoginResponse{
+		Result: output.Result,
+		Token:  "", // TODO: 実装
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
 type CreateUserRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -216,10 +257,20 @@ type DeleteUserRequest struct {
 	ID string `json:"id"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type UserResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type LoginResponse struct {
+	Result bool   `json:"result"`
+	Token  string `json:"token"`
 }

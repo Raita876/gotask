@@ -13,6 +13,7 @@ type UserUseCase interface {
 	FindUserByID(*FindUserByIDInput) (*FindUserByIDOutput, error)
 	UpdateUser(*UpdatePasswordInput) (*UpdatePasswordOutput, error)
 	DeleteUser(*DeleteUserInput) (*DeleteUserOutput, error)
+	LoginUser(*LoginUserInput) (*LoginUserOutput, error)
 }
 
 type UserOutput struct {
@@ -53,6 +54,15 @@ type DeleteUserInput struct {
 }
 type DeleteUserOutput struct {
 	// no param
+}
+
+type LoginUserInput struct {
+	Email    string
+	Password string
+}
+
+type LoginUserOutput struct {
+	Result bool
 }
 
 type userInteractor struct {
@@ -166,4 +176,13 @@ func (i *userInteractor) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, 
 	}
 
 	return &DeleteUserOutput{}, nil
+}
+
+func (i *userInteractor) LoginUser(input *LoginUserInput) (*LoginUserOutput, error) {
+	result, err := i.repo.Login(input.Email, input.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &LoginUserOutput{Result: result}, nil
 }
