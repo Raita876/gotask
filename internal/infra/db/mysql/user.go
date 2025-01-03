@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/raita876/gotask/internal/domain"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -73,6 +72,15 @@ func (repo *DBUserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 	return fromDBUser(&dbUser), nil
 }
 
+func (repo *DBUserRepository) FindByEmail(email string) (*domain.User, error) {
+	var dbUser DBUser
+	if err := repo.db.Where("email = ?", email).First(&dbUser).Error; err != nil {
+		return nil, err
+	}
+
+	return fromDBUser(&dbUser), nil
+}
+
 func (repo *DBUserRepository) Update(id uuid.UUID, name string) error {
 	return repo.db.Model(&DBUser{}).
 		Where("id = ?", id).
@@ -82,17 +90,4 @@ func (repo *DBUserRepository) Update(id uuid.UUID, name string) error {
 
 func (repo *DBUserRepository) Delete(id uuid.UUID) error {
 	return repo.db.Delete(&DBUser{}, id).Error
-}
-
-func (repo *DBUserRepository) Login(email, password string) (bool, error) {
-	var dbUser DBUser
-	if err := repo.db.Where("email = ?", email).First(&dbUser).Error; err != nil {
-		return false, err
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.HashedPassword), []byte(password)); err != nil {
-		return false, err
-	}
-
-	return true, nil
 }

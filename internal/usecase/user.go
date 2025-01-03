@@ -179,10 +179,14 @@ func (i *userInteractor) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, 
 }
 
 func (i *userInteractor) LoginUser(input *LoginUserInput) (*LoginUserOutput, error) {
-	result, err := i.repo.Login(input.Email, input.Password)
+	user, err := i.repo.FindByEmail(input.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	return &LoginUserOutput{Result: result}, nil
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(input.Password)); err != nil {
+		return nil, err
+	}
+
+	return &LoginUserOutput{Result: true}, nil
 }
