@@ -15,12 +15,12 @@ type UserRepository interface {
 }
 
 type User struct {
-	ID        uuid.UUID
-	Name      string
-	Email     string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID             uuid.UUID
+	Name           string
+	Email          string
+	HashedPassword string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 func (user *User) Validate() error {

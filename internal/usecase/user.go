@@ -17,12 +17,12 @@ type UserUseCase interface {
 }
 
 type UserOutput struct {
-	ID        uuid.UUID
-	Name      string
-	Email     string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID             uuid.UUID
+	Name           string
+	Email          string
+	HashedPassword string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type CreateUserInput struct {
@@ -91,12 +91,12 @@ func (i *userInteractor) CreateUser(input *CreateUserInput) (*CreateUserOutput, 
 	}
 
 	user := &domain.User{
-		ID:        uuid.New(),
-		Name:      input.Name,
-		Email:     input.Email,
-		Password:  hashed,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:             uuid.New(),
+		Name:           input.Name,
+		Email:          input.Email,
+		HashedPassword: hashed,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 
 	if err := user.Validate(); err != nil {
@@ -109,12 +109,12 @@ func (i *userInteractor) CreateUser(input *CreateUserInput) (*CreateUserOutput, 
 
 	return &CreateUserOutput{
 		UserOutput: &UserOutput{
-			ID:        user.ID,
-			Name:      user.Name,
-			Email:     user.Email,
-			Password:  user.Password,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:             user.ID,
+			Name:           user.Name,
+			Email:          user.Email,
+			HashedPassword: user.HashedPassword,
+			CreatedAt:      user.CreatedAt,
+			UpdatedAt:      user.UpdatedAt,
 		},
 	}, nil
 }
@@ -127,12 +127,12 @@ func (i *userInteractor) FindUserByID(input *FindUserByIDInput) (*FindUserByIDOu
 
 	return &FindUserByIDOutput{
 		UserOutput: &UserOutput{
-			ID:        user.ID,
-			Name:      user.Name,
-			Email:     user.Email,
-			Password:  user.Password,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:             user.ID,
+			Name:           user.Name,
+			Email:          user.Email,
+			HashedPassword: user.HashedPassword,
+			CreatedAt:      user.CreatedAt,
+			UpdatedAt:      user.UpdatedAt,
 		},
 	}, nil
 }
@@ -155,12 +155,12 @@ func (i *userInteractor) UpdateUser(input *UpdatePasswordInput) (*UpdatePassword
 
 	return &UpdatePasswordOutput{
 		UserOutput: &UserOutput{
-			ID:        user.ID,
-			Name:      user.Name,
-			Email:     user.Email,
-			Password:  user.Password,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:             user.ID,
+			Name:           user.Name,
+			Email:          user.Email,
+			HashedPassword: user.HashedPassword,
+			CreatedAt:      user.CreatedAt,
+			UpdatedAt:      user.UpdatedAt,
 		},
 	}, nil
 }

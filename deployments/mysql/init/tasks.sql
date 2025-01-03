@@ -10,13 +10,20 @@ CREATE TABLE users (
     id CHAR(36) PRIMARY KEY NOT NULL UNIQUE,
     name CHAR(255) NOT NULL UNIQUE,
     email CHAR(255) NOT NULL UNIQUE,
-    password CHAR(255) NOT NULL,
+    hashed_password CHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
 
 INSERT INTO
-    users (id, name, email, password, created_at, updated_at)
+    users (
+        id,
+        name,
+        email,
+        hashed_password,
+        created_at,
+        updated_at
+    )
 VALUES
     (
         'b5e93ba4-ce33-4e36-83cb-c71177464a25',

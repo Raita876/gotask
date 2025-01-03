@@ -10,12 +10,12 @@ import (
 )
 
 type DBUser struct {
-	ID        uuid.UUID `gorm:"column:id;type:char(36);primaryKey"`
-	Name      string    `gorm:"column:name;not null"`
-	Email     string    `gorm:"column:email;not null"`
-	Password  string    `gorm:"column:password;not null"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
-	UpdatedAt time.Time `gorm:"column:updated_at;not null"`
+	ID             uuid.UUID `gorm:"column:id;type:char(36);primaryKey"`
+	Name           string    `gorm:"column:name;not null"`
+	Email          string    `gorm:"column:email;not null"`
+	HashedPassword string    `gorm:"column:hashed_password;not null"`
+	CreatedAt      time.Time `gorm:"column:created_at;not null"`
+	UpdatedAt      time.Time `gorm:"column:updated_at;not null"`
 }
 
 func (DBUser) TableName() string {
@@ -24,23 +24,23 @@ func (DBUser) TableName() string {
 
 func toDBUser(user *domain.User) *DBUser {
 	return &DBUser{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Password:  user.Password,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:             user.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		HashedPassword: user.HashedPassword,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
 	}
 }
 
 func fromDBUser(dbUser *DBUser) *domain.User {
 	return &domain.User{
-		ID:        dbUser.ID,
-		Name:      dbUser.Name,
-		Email:     dbUser.Email,
-		Password:  dbUser.Password,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
+		ID:             dbUser.ID,
+		Name:           dbUser.Name,
+		Email:          dbUser.Email,
+		HashedPassword: dbUser.HashedPassword,
+		CreatedAt:      dbUser.CreatedAt,
+		UpdatedAt:      dbUser.UpdatedAt,
 	}
 }
 
@@ -90,7 +90,7 @@ func (repo *DBUserRepository) Login(email, password string) (bool, error) {
 		return false, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.HashedPassword), []byte(password)); err != nil {
 		return false, err
 	}
 
