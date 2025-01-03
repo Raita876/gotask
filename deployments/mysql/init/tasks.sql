@@ -8,8 +8,8 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY NOT NULL UNIQUE,
-    name CHAR(255) NOT NULL,
-    email CHAR(255) NOT NULL,
+    name CHAR(255) NOT NULL UNIQUE,
+    email CHAR(255) NOT NULL UNIQUE,
     password CHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
