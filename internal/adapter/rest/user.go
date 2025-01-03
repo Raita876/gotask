@@ -26,6 +26,17 @@ func NewUserController(e *echo.Echo, uc usecase.UserUseCase) *UserController {
 	return ctr
 }
 
+// @Summary Create user
+// @Schemes http
+// @Description Create user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body CreateUserRequest true "request body"
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users [post]
 func (ctr *UserController) CreateUser(c echo.Context) error {
 	var createUserRequest CreateUserRequest
 
@@ -59,6 +70,17 @@ func (ctr *UserController) CreateUser(c echo.Context) error {
 	return c.JSON(http.StatusCreated, response)
 }
 
+// @Summary Get user by id
+// @Schemes http
+// @Description Get user by id
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users/{id} [get]
 func (ctr *UserController) FindUserByID(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -88,6 +110,17 @@ func (ctr *UserController) FindUserByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// @Summary Update user
+// @Schemes http
+// @Description Update user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body UpdateUserRequest true "request body"
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users [put]
 func (ctr *UserController) UpdateUser(c echo.Context) error {
 	var updateUserRequest UpdateUserRequest
 
@@ -126,6 +159,17 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// @Summary Delete user
+// @Schemes http
+// @Description Delete user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body DeleteUserRequest true "request body"
+// @Success 200
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users [delete]
 func (ctr *UserController) DeleteUser(c echo.Context) error {
 	var deleteUserRequest DeleteUserRequest
 
