@@ -62,7 +62,8 @@ type LoginUserInput struct {
 }
 
 type LoginUserOutput struct {
-	Result bool
+	Email        string
+	IsSuccessful bool
 }
 
 type userInteractor struct {
@@ -181,12 +182,15 @@ func (i *userInteractor) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, 
 func (i *userInteractor) LoginUser(input *LoginUserInput) (*LoginUserOutput, error) {
 	user, err := i.repo.FindByEmail(input.Email)
 	if err != nil {
-		return nil, err
+		return &LoginUserOutput{IsSuccessful: false}, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(input.Password)); err != nil {
-		return nil, err
+		return &LoginUserOutput{IsSuccessful: false}, err
 	}
 
-	return &LoginUserOutput{Result: true}, nil
+	return &LoginUserOutput{
+		Email:        input.Email,
+		IsSuccessful: true,
+	}, nil
 }

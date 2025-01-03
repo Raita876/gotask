@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/raita876/gotask/internal/usecase"
@@ -234,9 +235,29 @@ func (ctr *UserController) Login(c echo.Context) error {
 		})
 	}
 
+	if !output.IsSuccessful {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "Failed to login user",
+		})
+	}
+
+	claims := &jwtCustomClaims{
+		output.Email,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return err
+	}
+
 	response := &LoginResponse{
-		Result: output.Result,
-		Token:  "", // TODO: 実装
+		Result: output.IsSuccessful,
+		Token:  signedToken,
 	}
 
 	return c.JSON(http.StatusOK, response)
@@ -273,4 +294,9 @@ type UserResponse struct {
 type LoginResponse struct {
 	Result bool   `json:"result"`
 	Token  string `json:"token"`
+}
+
+type jwtCustomClaims struct {
+	Email string `json:"email"`
+	jwt.RegisteredClaims
 }
