@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/labstack/echo/v4"
 	"github.com/raita876/gotask/internal/adapter/rest"
 	"github.com/raita876/gotask/internal/infra/db/mysql"
 	"github.com/raita876/gotask/internal/usecase"
@@ -73,10 +72,11 @@ func main() {
 			userUseCase := usecase.NewUserInteractor(userRepository)
 			taskUseCase := usecase.NewTaskInteractor(taskRepository)
 
-			e := echo.New()
-			rest.NewUserController(e, userUseCase)
-			rest.NewTaskController(e, taskUseCase)
-			rest.NewSwagController(e, name, version, USAGE)
+			e := rest.Setup(
+				userUseCase,
+				taskUseCase,
+				name, version, USAGE,
+			)
 
 			return e.Start(addr)
 		},

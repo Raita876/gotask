@@ -13,16 +13,16 @@ type UserController struct {
 	uc usecase.UserUseCase
 }
 
-func NewUserController(e *echo.Echo, uc usecase.UserUseCase) *UserController {
+func NewUserController(group *echo.Group, uc usecase.UserUseCase) *UserController {
 	ctr := &UserController{
 		uc: uc,
 	}
 
-	e.POST("/api/v1/users", ctr.CreateUser)
-	e.GET("/api/v1/users/:id", ctr.FindUserByID)
-	e.PUT("/api/v1/users/:id", ctr.UpdateUser)
-	e.DELETE("/api/v1/users/:id", ctr.DeleteUser)
-	e.POST("/api/v1/users/login", ctr.Login)
+	group.POST("/users", ctr.CreateUser)
+	group.GET("/users/:id", ctr.FindUserByID)
+	group.PUT("/sers/:id", ctr.UpdateUser)
+	group.DELETE("/users/:id", ctr.DeleteUser)
+	group.POST("/users/login", ctr.Login)
 
 	return ctr
 }

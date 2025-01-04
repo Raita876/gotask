@@ -13,16 +13,16 @@ type TaskController struct {
 	uc usecase.TaskUseCase
 }
 
-func NewTaskController(e *echo.Echo, uc usecase.TaskUseCase) *TaskController {
+func NewTaskController(group *echo.Group, uc usecase.TaskUseCase) *TaskController {
 	ctr := &TaskController{
 		uc: uc,
 	}
 
-	e.POST("/api/v1/tasks", ctr.CreateTask)
-	e.GET("/api/v1/tasks/:id", ctr.FindTaskByID)
-	e.GET("/api/v1/tasks/:user_id", ctr.FindTasksByUserID)
-	e.PUT("/api/v1/tasks", ctr.UpdateTask)
-	e.DELETE("/api/v1/tasks", ctr.DeleteTask)
+	group.POST("/tasks", ctr.CreateTask)
+	group.GET("/tasks/:id", ctr.FindTaskByID)
+	group.GET("/tasks/:user_id", ctr.FindTasksByUserID)
+	group.PUT("/tasks", ctr.UpdateTask)
+	group.DELETE("/tasks", ctr.DeleteTask)
 
 	return ctr
 }

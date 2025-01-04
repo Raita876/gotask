@@ -8,14 +8,14 @@ import (
 
 type SwagController struct{}
 
-func NewSwagController(e *echo.Echo, name, version, usage string) *SwagController {
+func NewSwagController(group *echo.Group, name, version, usage string) *SwagController {
 	docs.SwaggerInfo.Title = name
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = usage
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Schemes = []string{"http"}
 
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	group.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	return &SwagController{}
 }
