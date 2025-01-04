@@ -18,11 +18,13 @@ func NewTaskController(group *echo.Group, uc usecase.TaskUseCase) *TaskControlle
 		uc: uc,
 	}
 
-	group.POST("/tasks", ctr.CreateTask)
-	group.GET("/tasks/:id", ctr.FindTaskByID)
-	group.GET("/tasks/:user_id", ctr.FindTasksByUserID)
-	group.PUT("/tasks", ctr.UpdateTask)
-	group.DELETE("/tasks", ctr.DeleteTask)
+	tasksApiGroup := group.Group("/tasks")
+
+	tasksApiGroup.POST("", ctr.CreateTask)
+	tasksApiGroup.GET("/:id", ctr.FindTaskByID)
+	tasksApiGroup.GET("/:user_id", ctr.FindTasksByUserID)
+	tasksApiGroup.PUT("", ctr.UpdateTask)
+	tasksApiGroup.DELETE("", ctr.DeleteTask)
 
 	return ctr
 }

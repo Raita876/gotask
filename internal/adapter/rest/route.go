@@ -19,6 +19,7 @@ func Setup(
 	apiGroup := e.Group("/api/v1")
 
 	NewUserController(apiGroup, userUseCase)
+	NewLoginController(apiGroup, userUseCase)
 	NewTaskController(apiGroup, taskUseCase)
 	NewSwagController(apiGroup, name, version, usage)
 

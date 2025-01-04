@@ -18,11 +18,12 @@ func NewUserController(group *echo.Group, uc usecase.UserUseCase) *UserControlle
 		uc: uc,
 	}
 
-	group.POST("/users", ctr.CreateUser)
-	group.GET("/users/:id", ctr.FindUserByID)
-	group.PUT("/sers/:id", ctr.UpdateUser)
-	group.DELETE("/users/:id", ctr.DeleteUser)
-	group.POST("/users/login", ctr.Login)
+	usersApiGroup := group.Group("/users")
+
+	usersApiGroup.POST("", ctr.CreateUser)
+	usersApiGroup.GET("/:id", ctr.FindUserByID)
+	usersApiGroup.PUT("/:id", ctr.UpdateUser)
+	usersApiGroup.DELETE("/:id", ctr.DeleteUser)
 
 	return ctr
 }
@@ -202,58 +203,6 @@ func (ctr *UserController) DeleteUser(c echo.Context) error {
 	})
 }
 
-// @Summary Login user
-// @Schemes http
-// @Description Login user
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param request body LoginRequest true "request body"
-// @Success 200
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /users/login [post]
-func (ctr *UserController) Login(c echo.Context) error {
-	var loginRequest LoginRequest
-
-	if err := c.Bind(&loginRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Failed to parse request body",
-		})
-	}
-
-	input := &usecase.LoginUserInput{
-		Email:    loginRequest.Email,
-		Password: loginRequest.Password,
-	}
-
-	output, err := ctr.uc.LoginUser(input)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to login user",
-		})
-	}
-
-	if !output.IsSuccessful {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"error": "Not allowed",
-		})
-	}
-
-	signedToken, err := CreateJwt(output.Email)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to create jwt",
-		})
-	}
-
-	response := &LoginResponse{
-		Token: signedToken,
-	}
-
-	return c.JSON(http.StatusOK, response)
-}
-
 type CreateUserRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -269,19 +218,10 @@ type DeleteUserRequest struct {
 	ID string `json:"id"`
 }
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 type UserResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type LoginResponse struct {
-	Token string `json:"token"`
 }
